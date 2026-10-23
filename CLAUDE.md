@@ -9,11 +9,12 @@ Ships to web portals (Poki, CrazyGames, GameDistribution, Coolmath) and to Andro
 - `npm run check-levels` — replays every level's `solution` headlessly; must print "All levels winnable"
 - `npm run search-level -- <index> [tries]` — random-search a winning line for one level (0-based index)
 - `npm run build:poki | build:crazygames | build:gd | build:web` — output in `dist/<target>`
-- `npm run build:mobile` then `npx cap open android|ios`
+- `npm run build:mobile` then `npx cap open android|ios` (native projects are committed; Capacitor 8, targetSdk 36)
+- `npm run art` — re-render icon/splash/store art from `art/art.html`
 
 ## Architecture
 - `src/config.ts` — game name, physics tuning, star rules, ad pacing. Tune here first.
-- `src/game/` — pure logic, no DOM: `game.ts` (state machine + scoring), `physics.ts` (particle water), `levels.ts`, `render.ts` (canvas), `audio.ts` (synth sfx), `save.ts` (localStorage, never throws)
+- `src/game/` — pure logic, no DOM: `game.ts` (state machine + scoring + wind/pipes), `physics.ts` (particle water), `levels.ts`, `render.ts` (canvas), `audio.ts` (synth sfx), `save.ts` (localStorage, never throws)
 - `src/ui/` — DOM menus/HUD (`index.html` markup + `ui.ts`) and the ad flow (when interstitials/rewarded ads appear)
 - `src/platform/` — one adapter per destination implementing `Platform` (`types.ts`). Selected by `VITE_PLATFORM` from `.env.<mode>`.
 - `scripts/` — headless simulator + level checker (runs with tsx; imports `src/game` directly)
@@ -28,3 +29,6 @@ Playfield is a fixed logical 400x640 (portrait). It is scaled into the window; t
 - After editing `levels.ts`: run `npm run check-levels`. Every level needs a `solution` that wins 3/3 times, and must NOT be winnable with a throwaway line (that means it plays itself).
 - Keep the first 2 levels ad-free and teach one new idea per level group. See docs/LEVEL_DESIGN.md.
 - `appId` in `capacitor.config.ts` must never change after the first store release.
+- Each build may only contain its own portal SDK: keep `src/platform/index.ts` an `if` chain on `VITE_PLATFORM` (a `switch` isn't pruned).
+- Scoring waits for water to settle by measuring displacement, not velocity (resting water never has zero velocity). See `SETTLE_*` in config.
+- Mobile ads end on AdMob Dismissed/FailedToShow events; never await `showRewardVideoAd()` (it doesn't settle if the ad is closed early).

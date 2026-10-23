@@ -1,7 +1,7 @@
 {
   "name": "doodle-river",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Doodle River - draw a riverbed, guide the water, fill the pond. Web (Poki, CrazyGames, GameDistribution) + Android/iOS via Capacitor.",
   "type": "module",
   "scripts": {

@@ -30,6 +30,10 @@ Rewarded ads earn the most per view and players choose them, so they don't annoy
 Rules the portals enforce, and the code follows:
 - Never show an ad during active play. Stop gameplay, block input and mute audio during ads (`UI.withAd`, `Sfx.setAdMuted`).
 - The game must keep working when an adblocker removes the SDK.
+- Mobile: an ad counts as finished on AdMob's Dismissed/FailedToShow events, not when `show*()` resolves.
+  (`showRewardVideoAd()` never settles if the player closes the ad early; waiting on it froze the game.)
+- Mobile: players in the EEA/UK/Switzerland get Google's consent form (UMP) before any ad, and the
+  "Privacy & ads" button on the title screen reopens it. Google requires both.
 - Don't show too many ads in a row early on. First impressions decide retention.
 
 ## 3. Mobile (Google Play + App Store)
