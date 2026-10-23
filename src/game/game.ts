@@ -1,4 +1,4 @@
-import { H, LINE_R, MAX_SETTLE, SPAWN_RATE, THRIFTY, W, WALL_R } from '../config';
+import { H, LINE_R, MAX_SETTLE, PIPE_R, SETTLE_SPEED, SETTLE_WINDOW, SPAWN_RATE, WIN_SETTLE, THRIFTY, W, WALL_R } from '../config';
 import type { Sfx } from './audio';
 import { LEVELS } from './levels';
 import { seg, simulate } from './physics';
@@ -29,9 +29,12 @@ export class Game {
   inCup = 0;
   time = 0;
   cupPulse = 0;
+  /** Flashes the pipes when water goes through. */
+  pipeT = 0;
 
   private spawnAcc = 0;
   private endT = 0;
+  private sampleT = 0;
   private lvT = 0;
   private lastPlop = 0;
   private current: Vec[] = [];
@@ -49,7 +52,7 @@ export class Game {
     const L = (this.level = LEVELS[i]);
     this.parts = []; this.strokes = []; this.strokeSegs = []; this.fx = []; this.current = [];
     this.inkUsed = 0; this.inkMax = L.ink;
-    this.spawned = 0; this.spawnAcc = 0; this.endT = 0; this.inCup = 0; this.lvT = 0;
+    this.spawned = 0; this.spawnAcc = 0; this.endT = 0; this.sampleT = 0; this.inCup = 0; this.lvT = 0;
     this.drawing = false;
     this.movers = [];
     this.wallSegs = L.walls.map((w) => {
@@ -124,6 +127,7 @@ export class Game {
   step(dt: number): void {
     this.time += dt;
     this.cupPulse = Math.max(0, this.cupPulse - dt * 4);
+    this.pipeT = Math.max(0, this.pipeT - dt * 3);
     for (const f of this.fx) { f.x += f.vx * dt; f.y += f.vy * dt; f.vy += f.g * dt; f.life -= dt; f.rot += f.vr * dt; }
     this.fx = this.fx.filter((f) => f.life > 0);
     if (this.state === 'menu') return;
@@ -141,14 +145,33 @@ export class Game {
       this.spawnAcc += dt;
       while (this.spawnAcc >= 1 / SPAWN_RATE && this.spawned < L.drops) {
         this.spawnAcc -= 1 / SPAWN_RATE; this.spawned++;
-        this.parts.push({ x: L.tap.x + (Math.random() - 0.5) * 8, y: L.tap.y + 12, vx: (Math.random() - 0.5) * 24, vy: 90, inCup: false, gx: 0, gy: 0 });
+        this.parts.push({ x: L.tap.x + (Math.random() - 0.5) * 8, y: L.tap.y + 12, vx: (Math.random() - 0.5) * 24, vy: 90, inCup: false, gx: 0, gy: 0, px: L.tap.x, py: L.tap.y });
       }
     }
 
+    for (const w of L.winds ?? []) {
+      for (const p of this.parts) if (p.x > w.x && p.x < w.x + w.w && p.y > w.y && p.y < w.y + w.h) { p.vx += w.fx * dt; p.vy += w.fy * dt; }
+    }
     simulate(this.parts, this.statics.concat(this.strokeSegs), dt);
+    for (const pp of L.pipes ?? []) {
+      for (const p of this.parts) {
+        if (Math.hypot(p.x - pp.a[0], p.y - pp.a[1]) < PIPE_R) {
+          // pop out just past the exit along the direction of travel, so drops don't stack on one point
+          const sp = Math.hypot(p.vx, p.vy) || 1;
+          p.x = pp.b[0] + (p.vx / sp) * (PIPE_R + 2) + (Math.random() - 0.5) * 6;
+          p.y = pp.b[1] + (p.vy / sp) * (PIPE_R + 2) + (Math.random() - 0.5) * 6;
+          p.px = p.x; p.py = p.y;
+          this.pipeT = 1;
+        }
+      }
+    }
 
     const c = L.cup;
-    let n = 0, speed = 0;
+    // Velocity never reads as zero for resting water (gravity re-adds it every substep) and packed pools jitter,
+    // so measure how far each drop really travelled over a half-second window.
+    const sample = this.state === 'pour' && (this.sampleT += dt) >= SETTLE_WINDOW;
+    const still = SETTLE_SPEED * SETTLE_WINDOW;
+    let n = 0, moving = 0;
     this.parts = this.parts.filter((p) => {
       if (p.y > H + 30 || p.x < -30 || p.x > W + 30) return false;
       for (const l of L.lava) {
@@ -173,16 +196,21 @@ export class Game {
           if (now - this.lastPlop > 45 && this.state === 'pour') { this.lastPlop = now; this.sfx.plop(this.inCup / L.goal); }
         }
       }
-      speed += Math.abs(p.vx) + Math.abs(p.vy);
+      else if (sample && Math.hypot(p.x - p.px, p.y - p.py) > still) moving++;
+      if (sample) { p.px = p.x; p.py = p.y; }
       return true;
     });
     this.inCup = n;
 
     if (this.state === 'pour' && this.spawned >= L.drops) {
       this.endT += dt;
-      const avg = this.parts.length ? speed / this.parts.length : 0;
-      if ((this.endT > 1.2 && avg < 40) || this.endT > MAX_SETTLE || !this.parts.length) this.finish();
+      // a couple of stray drops bouncing around shouldn't keep the player waiting
+      const settled = sample && moving <= Math.max(2, this.parts.length * 0.03);
+      // once the pond is full the result is decided; don't make a winner watch a sloshing puddle elsewhere
+      const decided = this.endT > WIN_SETTLE && this.inCup >= L.goal;
+      if (settled || decided || this.endT > MAX_SETTLE || !this.parts.length) this.finish();
     }
+    if (sample) this.sampleT = 0;
   }
 
   private finish(): void {

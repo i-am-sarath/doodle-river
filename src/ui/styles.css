@@ -11,9 +11,10 @@ html, body { height: 100%; margin: 0; }
 body { background: var(--sky-deep); color: var(--ink); font-family: var(--body); overflow: hidden;
   touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 [hidden] { display: none !important; }
+/* Capacitor 8 sets --safe-area-inset-* on Android WebViews older than 140 (they lack env()); otherwise env() works. */
 #safe { position: fixed; pointer-events: none; visibility: hidden;
-  top: env(safe-area-inset-top, 0px); bottom: env(safe-area-inset-bottom, 0px);
-  left: env(safe-area-inset-left, 0px); right: env(safe-area-inset-right, 0px); }
+  top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px)); bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+  left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px)); right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px)); }
 #cv { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
 #field { position: fixed; --u: 1px; pointer-events: none; }
 #field > * { pointer-events: auto; }
@@ -48,7 +49,7 @@ button:focus-visible { outline: calc(var(--u)*3) solid var(--gold); outline-offs
 #hint span { background: rgba(255,255,255,.9); padding: calc(var(--u)*7) calc(var(--u)*14); border-radius: 99px; display: inline-block; box-shadow: 0 calc(var(--u)*3) 0 rgba(37,25,63,.2); }
 
 .panel { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--u)*14); padding: calc(var(--u)*24); text-align: center; }
-.panel.dim { background: rgba(37,25,63,.55); }
+.panel.dim { background: rgba(37,25,63,.55); box-shadow: 0 0 0 100vmax rgba(37,25,63,.55); } /* shadow dims the scenery outside the playfield too */
 .card { background: var(--paper); border: calc(var(--u)*4) solid var(--ink); border-radius: calc(var(--u)*22); padding: calc(var(--u)*22) calc(var(--u)*20); width: 100%; max-width: calc(var(--u)*310); display: flex; flex-direction: column; align-items: center; gap: calc(var(--u)*12); box-shadow: 0 calc(var(--u)*8) 0 var(--ink); animation: pop .35s cubic-bezier(.2,1.6,.4,1); }
 @keyframes pop { from { transform: scale(.6); opacity: 0 } to { transform: none; opacity: 1 } }
 .big { font-family: var(--display); font-size: calc(var(--u)*34); line-height: 1; letter-spacing: .02em; }
@@ -70,5 +71,6 @@ button:focus-visible { outline: calc(var(--u)*3) solid var(--gold); outline-offs
 .lv { aspect-ratio: 1; border-radius: calc(var(--u)*12); background: var(--water); border: calc(var(--u)*3) solid var(--ink); box-shadow: 0 calc(var(--u)*4) 0 var(--ink); font-size: calc(var(--u)*20); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--u)*1); padding: 0; }
 .lv small { font-family: var(--body); font-size: calc(var(--u)*9); letter-spacing: .02em; color: var(--gold); font-weight: 900; }
 .lv[disabled] { background: #9d97b5; cursor: not-allowed; color: #ddd8ea; }
+.linkbtn { position: absolute; right: calc(var(--u)*14); bottom: calc(var(--u)*24); background: none; font-family: var(--body); font-weight: 900; font-size: calc(var(--u)*12); color: var(--ink); opacity: .7; text-decoration: underline; padding: calc(var(--u)*6); }
 .tog { position: absolute; left: calc(var(--u)*14); bottom: calc(var(--u)*14); }
 @media (prefers-reduced-motion: reduce) { #mascot, .card, .stars svg.on { animation: none; } }

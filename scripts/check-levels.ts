@@ -12,6 +12,9 @@ import { play, type Stroke } from './sim';
 
 const TRIALS = 3; // the spring has a little randomness, so replay each solution a few times
 
+// Short doodles in each corner. If one of these wins, the level plays itself.
+const THROWAWAYS: Stroke[] = [[[10, 630], [40, 630]], [[360, 630], [390, 630]], [[10, 10], [40, 10]], [[360, 10], [390, 10]]];
+
 function check(): void {
   let bad = 0;
   LEVELS.forEach((L, i) => {
@@ -20,8 +23,11 @@ function check(): void {
     const wins = rs.filter((r) => r?.won).length;
     const best = Math.max(...rs.map((r) => r?.stars ?? 0));
     const cups = rs.map((r) => r?.inCup ?? 0).join('/');
-    console.log(`L${String(i + 1).padEnd(2)} ${wins === TRIALS ? 'OK  ' : 'FAIL'} wins ${wins}/${TRIALS}  stars ${best}  drops ${cups} (goal ${L.goal})`);
-    if (wins < TRIALS) bad++;
+    const free = THROWAWAYS.findIndex((t) => play(i, [t])?.won);
+    const ok = wins === TRIALS && free < 0;
+    console.log(`L${String(i + 1).padEnd(2)} ${ok ? 'OK  ' : 'FAIL'} wins ${wins}/${TRIALS}  stars ${best}  drops ${cups} (goal ${L.goal})`
+      + (free < 0 ? '' : `  PLAYS ITSELF with throwaway ${JSON.stringify(THROWAWAYS[free])}`));
+    if (!ok) bad++;
   });
   console.log(bad ? `\n${bad} level(s) need attention` : '\nAll levels winnable');
   if (bad) process.exitCode = 1;

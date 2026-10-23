@@ -16,6 +16,8 @@ export class UI {
   private inkAdUsed = false;
   private busy = false; // an ad is showing
   get adShowing(): boolean { return this.busy; }
+  /** True while an ad or any menu panel is up: the canvas must not accept drawing then. */
+  get blocksInput(): boolean { return this.busy || PANELS.some((p) => !$(p).hidden); }
 
   constructor(private game: Game, private platform: Platform, private sfx: Sfx, private save: SaveData) {
     sfx.enabled = save.sfx;
@@ -144,6 +146,9 @@ export class UI {
       const b = (e.target as HTMLElement).closest<HTMLButtonElement>('.lv');
       if (b && !b.disabled) { this.sfx.unlock(); void this.startLevel(Number(b.dataset.i)); }
     });
+    $('#bPrivacy').hidden = !this.platform.hasPrivacyOptions;
+    on('#bPrivacy', () => { if (!this.busy) void this.withAd(() => this.platform.privacyOptions?.() ?? Promise.resolve()); });
+    this.platform.onBackButton?.(() => this.back());
     on('#bSfx', () => { this.sfx.enabled = !this.sfx.enabled; this.save.sfx = this.sfx.enabled; writeSave(this.save); this.renderSfx(); });
 
     on('#bMoreInk', async () => {
@@ -167,7 +172,18 @@ export class UI {
 
     addEventListener('keydown', (e) => {
       if ((e.key === 'r' || e.key === 'R') && this.game.state !== 'menu' && !this.busy) void this.startLevel(this.game.levelIndex);
+      if (e.key === 'Escape') this.back();
     });
+  }
+
+  /** Android back button / Escape. Returns false only on the title screen (the app may exit then). */
+  back(): boolean {
+    if (this.busy) return true;
+    if (!$('#pMenu').hidden) return false;
+    if (!$('#pLevels').hidden) $('#bBack').click();
+    else if (this.game.state === 'menu') this.show('#pMenu');
+    else this.openLevels();
+    return true;
   }
 
   hideHintOnDraw(): void { $('#hint').hidden = true; $('#bMoreInk').hidden = true; }

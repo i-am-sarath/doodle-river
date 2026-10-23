@@ -6,7 +6,7 @@ export function seg(ax: number, ay: number, bx: number, by: number, r: number): 
 }
 
 /** Push a particle out of a capsule-shaped line and bounce it slightly. */
-function collide(p: Particle, s: Seg): void {
+function collide(p: Particle, s: Seg, friction = true): void {
   const dx = s.bx - s.ax, dy = s.by - s.ay, l2 = dx * dx + dy * dy || 1e-6;
   let t = ((p.x - s.ax) * dx + (p.y - s.ay) * dy) / l2;
   t = t < 0 ? 0 : t > 1 ? 1 : t;
@@ -20,7 +20,7 @@ function collide(p: Particle, s: Seg): void {
   p.x = cx + nx * R; p.y = cy + ny * R;
   const vn = p.vx * nx + p.vy * ny;
   if (vn < 0) { p.vx -= 1.15 * vn * nx; p.vy -= 1.15 * vn * ny; }
-  p.vx *= LINE_FRICTION; p.vy *= LINE_FRICTION;
+  if (friction) { p.vx *= LINE_FRICTION; p.vy *= LINE_FRICTION; }
 }
 
 // Uniform grid for particle-particle contacts.
@@ -73,5 +73,7 @@ export function simulate(parts: Particle[], segs: Seg[], dt: number): void {
         }
       }
     }
+    // pair pushes can shove drops into walls; resolve again so packed ponds don't leak
+    for (const p of parts) for (const sg of segs) collide(p, sg, false);
   }
 }

@@ -44,12 +44,13 @@ async function main(): Promise<void> {
     field.style.setProperty('--u', `${scale}px`);
   }
   addEventListener('resize', layout);
+  new ResizeObserver(layout).observe(safe); // safe-area insets can arrive after load (Capacitor injects them)
   layout();
 
   const toField = (e: PointerEvent) => ({ x: (e.clientX - view.ox) / view.scale, y: (e.clientY - view.oy) / view.scale });
   cv.addEventListener('pointerdown', (e) => {
     sfx.unlock();
-    if (ui.adShowing) return; // portals require input to be blocked during ads
+    if (ui.blocksInput) return; // portals require input to be blocked during ads; menus cover the field too
     if (game.beginStroke(toField(e))) { cv.setPointerCapture(e.pointerId); ui.hideHintOnDraw(); }
   });
   cv.addEventListener('pointermove', (e) => game.moveStroke(toField(e)));

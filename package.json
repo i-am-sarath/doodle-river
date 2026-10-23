@@ -17,21 +17,25 @@
     "android": "npm run build:mobile && npx cap open android",
     "ios": "npm run build:mobile && npx cap open ios",
     "check-levels": "tsx scripts/check-levels.ts",
-    "search-level": "tsx scripts/check-levels.ts --search"
+    "search-level": "tsx scripts/check-levels.ts --search",
+    "art": "node art/render.mjs"
   },
   "dependencies": {
-    "@capacitor-community/admob": "^6.0.0",
-    "@capacitor/android": "^6.1.2",
-    "@capacitor/core": "^6.1.2",
-    "@capacitor/ios": "^6.1.2",
+    "@capacitor-community/admob": "^8.2.1",
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/ios": "^8.5.3",
     "@fontsource/lilita-one": "^5.0.0",
     "@fontsource/nunito": "^5.0.0"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6.1.2",
-    "typescript": "^5.6.3",
-    "vite": "^5.4.10",
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.3",
+    "@types/node": "^22.9.0",
+    "playwright": "^1.63.0",
     "tsx": "^4.19.2",
-    "@types/node": "^22.9.0"
+    "typescript": "^5.6.3",
+    "vite": "^7.3.7"
   }
 }

@@ -1,6 +1,6 @@
-import { H, PR_DRAW, W } from '../config';
+import { H, PIPE_R, PR_DRAW, W } from '../config';
 import type { Game } from './game';
-import type { Vec } from './types';
+import type { Pipe, Vec, Wind } from './types';
 
 /** Where the 400x640 playfield sits on the screen canvas. */
 export interface View { scale: number; ox: number; oy: number; dpr: number; cw: number; ch: number }
@@ -26,6 +26,9 @@ export function render(ctx: CanvasRenderingContext2D, g: Game, v: View): void {
     ctx.lineTo(l.x + l.w, l.y + l.h); ctx.fill();
     ctx.fillStyle = '#ffc82e'; ctx.fillRect(l.x, l.y + 16, l.w, 3);
   }
+
+  for (const w of L.winds ?? []) drawWind(ctx, w, t);
+  for (const p of L.pipes ?? []) drawPipe(ctx, p, t, g.pipeT);
 
   for (const s of g.wallSegs) { const p = [{ x: s.ax, y: s.ay }, { x: s.bx, y: s.by }]; line(ctx, p, 14, INK); line(ctx, p, 7, '#8a6f5b'); }
   for (const m of g.movers) {
@@ -129,6 +132,40 @@ function drawMenuRain(ctx: CanvasRenderingContext2D, x0: number, x1: number): vo
   for (const d of rain) { d.y += d.v / 60; ctx.moveTo(d.x + 5, d.y); ctx.arc(d.x, d.y, 5, 0, 7); }
   ctx.fill();
   rain = rain.filter((d) => d.y < H + 10);
+}
+
+function drawWind(ctx: CanvasRenderingContext2D, w: Wind, t: number): void {
+  const cx = w.x + w.w / 2, cy = w.y + w.h / 2, ang = Math.atan2(w.fy, w.fx), D = Math.hypot(w.w, w.h) / 2;
+  ctx.save();
+  ctx.fillStyle = 'rgba(255,255,255,.22)'; roundRect(ctx, w.x, w.y, w.w, w.h, 14); ctx.fill();
+  ctx.beginPath(); ctx.rect(w.x, w.y, w.w, w.h); ctx.clip();
+  // work in a frame where the wind blows along +x; streaks drift with it
+  ctx.translate(cx, cy); ctx.rotate(ang);
+  ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.beginPath();
+  const span = 2 * D + 40;
+  for (let row = 0, y = -D; y < D; row++, y += 22) {
+    const x = ((row * 97 + t * 140) % span) - D - 20;
+    ctx.moveTo(x, y); ctx.lineTo(x + 20, y);
+  }
+  ctx.stroke();
+  // arrow badge in the middle
+  ctx.fillStyle = 'rgba(37,25,63,.55)'; ctx.beginPath(); ctx.arc(0, 0, 14, 0, 7); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(8, 0); ctx.lineTo(-5, -7); ctx.lineTo(-5, 7); ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+function drawPipe(ctx: CanvasRenderingContext2D, p: Pipe, t: number, flash: number): void {
+  const [ax, ay] = p.a, [bx, by] = p.b;
+  ctx.setLineDash([2, 10]); line(ctx, [{ x: ax, y: ay }, { x: bx, y: by }], 4, 'rgba(37,25,63,.18)'); ctx.setLineDash([]);
+  for (const [x, y, col, dir] of [[ax, ay, '#ff9f1c', 1], [bx, by, '#1db5ff', -1]] as const) {
+    const r = PIPE_R + 2 + flash * 2;
+    ctx.fillStyle = INK; ctx.beginPath(); ctx.arc(x, y, r + 4, 0, 7); ctx.fill();
+    ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill();
+    ctx.fillStyle = '#1a1230'; ctx.beginPath(); ctx.arc(x, y, r - 6, 0, 7); ctx.fill();
+    // swirl: in for the entry, out for the exit
+    ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.arc(x, y, r - 10, t * 5 * dir, t * 5 * dir + 3.6); ctx.stroke();
+  }
 }
 
 function drawSpring(ctx: CanvasRenderingContext2D, x: number, y: number): void {

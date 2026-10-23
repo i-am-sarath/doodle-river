@@ -19,6 +19,11 @@ export interface Platform {
   rewardedBreak(): Promise<boolean>;
   /** Optional celebration signal (CrazyGames uses it). */
   happyTime(): void;
+  /** True if players can reopen an ad-consent form (mobile GDPR). Shows the menu's "Privacy" button. */
+  readonly hasPrivacyOptions?: boolean;
+  privacyOptions?(): Promise<void>;
+  /** Hardware back button (Android). `handler` returns false when the game should exit. */
+  onBackButton?(handler: () => boolean): void;
 }
 
 /** The game mutes itself while ads play. */

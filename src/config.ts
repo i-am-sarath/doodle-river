@@ -18,13 +18,19 @@ export const SPAWN_RATE = 48; // drops per second from the spring
 export const LINE_R = 4;      // half-thickness of player riverbed lines
 export const WALL_R = 5;      // half-thickness of rock walls
 export const LINE_FRICTION = 0.992; // speed kept per contact per substep (lower = slower, calmer river)
+export const PIPE_R = 15;      // pipe mouth radius
 export const AIR_DRAG = 0.997;      // horizontal speed kept per substep in the air (lower = water falls more straight down)
 
 // Stars: 1 for filling the pond, +1 all flowers bloomed, +1 ink used <= THRIFTY
 export const THRIFTY = 0.6;
 
-// After the last drop leaves the spring, wait until the water settles (or this many seconds) before scoring.
+// After the last drop leaves the spring, score once (almost) no drop outside the pond travels faster than
+// SETTLE_SPEED px/s over a SETTLE_WINDOW-second window, or after MAX_SETTLE seconds at most.
 export const MAX_SETTLE = 12;
+export const SETTLE_SPEED = 24;
+export const SETTLE_WINDOW = 0.5;
+/** If the pond is already full, score this many seconds after the last drop even if water elsewhere still moves. */
+export const WIN_SETTLE = 3;
 
 // Ads. Portals rate-limit too, but keep it friendly: never before FIRST_AD_LEVEL.
 export const FIRST_AD_LEVEL = 3;       // 1-based level number

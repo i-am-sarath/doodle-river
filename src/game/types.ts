@@ -12,6 +12,10 @@ export interface LevelDef {
   cup: Rect;
   walls: WallDef[];
   lava: Rect[];
+  /** Wind zones: water inside is pushed by (fx, fy) px/s^2. */
+  winds?: Wind[];
+  /** One-way pipes: water entering the orange mouth `a` comes out of the blue mouth `b` with the same velocity. */
+  pipes?: Pipe[];
   /** Flowers bloom when water touches them. Blooming all = 1 star. */
   flowers: [number, number][];
   drops: number;
@@ -30,9 +34,12 @@ export interface LevelDef {
   solution?: [number, number][][];
 }
 
+export interface Wind extends Rect { fx: number; fy: number }
+export interface Pipe { a: [number, number]; b: [number, number] }
+
 export interface Seg { ax: number; ay: number; bx: number; by: number; r: number }
 
-export interface Particle { x: number; y: number; vx: number; vy: number; inCup: boolean; gx: number; gy: number }
+export interface Particle { x: number; y: number; vx: number; vy: number; inCup: boolean; gx: number; gy: number; px: number; py: number }
 
 export interface Mover { s: Seg; base: Line4; mx: number; my: number; per: number }
 
