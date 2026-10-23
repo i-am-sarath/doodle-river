@@ -1,0 +1,37 @@
+{
+  "name": "doodle-river",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Doodle River - draw a riverbed, guide the water, fill the pond. Web (Poki, CrazyGames, GameDistribution) + Android/iOS via Capacitor.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "typecheck": "tsc --noEmit",
+    "build:web": "vite build --mode web",
+    "build:poki": "vite build --mode poki",
+    "build:crazygames": "vite build --mode crazygames",
+    "build:gd": "vite build --mode gamedistribution",
+    "build:mobile": "vite build --mode mobile && npx cap sync",
+    "build:all": "npm run build:web && npm run build:poki && npm run build:crazygames && npm run build:gd",
+    "preview": "vite preview",
+    "android": "npm run build:mobile && npx cap open android",
+    "ios": "npm run build:mobile && npx cap open ios",
+    "check-levels": "tsx scripts/check-levels.ts",
+    "search-level": "tsx scripts/check-levels.ts --search"
+  },
+  "dependencies": {
+    "@capacitor-community/admob": "^6.0.0",
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/ios": "^6.1.2",
+    "@fontsource/lilita-one": "^5.0.0",
+    "@fontsource/nunito": "^5.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10",
+    "tsx": "^4.19.2",
+    "@types/node": "^22.9.0"
+  }
+}

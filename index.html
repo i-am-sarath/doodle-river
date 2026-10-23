@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#4cb8f0" />
+  <title>Doodle River</title>
+  <meta name="description" content="Draw a riverbed, guide the water and fill the pond. A physics drawing puzzle." />
+</head>
+<body>
+  <div id="safe" aria-hidden="true"></div>
+  <canvas id="cv" aria-label="Game field: draw a riverbed to guide the river into the pond"></canvas>
+
+  <!-- #field is positioned by JS exactly over the 400x640 playfield. All UI lives inside it. -->
+  <div id="field">
+    <div id="hud" hidden>
+      <button class="ibtn" id="bMenu" aria-label="Levels"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <div id="mid">
+        <div id="lvl" class="outline">LEVEL 1</div>
+        <div id="inkbar"><div id="ink"></div><i></i></div>
+        <div id="inkrow">
+          <span id="inklabel">RIVERBED LEFT</span>
+          <button id="bMoreInk" class="adpill" hidden><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>+50% INK</button>
+        </div>
+      </div>
+      <button class="ibtn" id="bRetry" aria-label="Restart level (R)"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg></button>
+    </div>
+    <div id="hint" hidden><span id="hintT"></span></div>
+
+    <div class="panel" id="pMenu">
+      <svg id="mascot" viewBox="0 0 120 140" aria-hidden="true">
+        <path d="M60 6C60 6 14 62 14 90a46 46 0 0 0 92 0C106 62 60 6 60 6z" fill="#1d78ff" stroke="#25193f" stroke-width="6" stroke-linejoin="round"/>
+        <path d="M34 82c2-14 10-26 16-34" stroke="#8cc8ff" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <circle cx="46" cy="94" r="10" fill="#fff" stroke="#25193f" stroke-width="3"/><circle cx="78" cy="94" r="10" fill="#fff" stroke="#25193f" stroke-width="3"/>
+        <circle cx="49" cy="96" r="4.5" fill="#25193f"/><circle cx="81" cy="96" r="4.5" fill="#25193f"/>
+        <path d="M50 114q12 9 24 0" stroke="#25193f" stroke-width="4" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div class="big title outline">DOODLE<br/>RIVER</div>
+      <button class="btn" id="bPlay">PLAY</button>
+      <button class="btn alt" id="bLevels">LEVELS</button>
+      <button class="ibtn tog" id="bSfx" aria-label="Toggle sound"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path id="sfxWave" d="M16.5 8.5a5 5 0 0 1 0 7"/></svg></button>
+    </div>
+
+    <div class="panel dim" id="pLevels" hidden>
+      <div class="big outline">LEVELS</div>
+      <div id="grid"></div>
+      <button class="btn ghost" id="bBack">BACK</button>
+    </div>
+
+    <div class="panel dim" id="pWin" hidden>
+      <div class="card">
+        <div class="big outline" id="winT">POND FILLED!</div>
+        <div class="stars" id="winStars"></div>
+        <div class="sub" id="winS"></div>
+        <div class="row"><button class="btn ghost" id="bWinRetry">RETRY</button><button class="btn" id="bNext">NEXT</button></div>
+      </div>
+    </div>
+
+    <div class="panel dim" id="pLose" hidden>
+      <div class="card">
+        <div class="big outline">SO CLOSE!</div>
+        <div class="sub" id="loseS"></div>
+        <div class="row"><button class="btn ghost" id="bLoseLv">LEVELS</button><button class="btn" id="bLoseRetry">RETRY</button></div>
+        <button class="adpill big-pill" id="bSkip" hidden><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>SKIP LEVEL</button>
+      </div>
+    </div>
+
+    <div class="panel dim" id="pAd" hidden><div class="card"><div class="big outline">AD</div><div class="sub">Dev placeholder. Real ads appear on Poki, CrazyGames, GameDistribution and mobile builds.</div></div></div>
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
