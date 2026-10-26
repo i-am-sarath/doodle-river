@@ -18,6 +18,7 @@ npm run check-levels   # verifies all 30 levels are winnable and none plays itse
 | Poki | `npm run build:poki` | `dist/poki` | Poki SDK |
 | CrazyGames | `npm run build:crazygames` | `dist/crazygames` | CrazyGames SDK v3 |
 | GameDistribution | `npm run build:gd` | `dist/gamedistribution` | GD SDK (set `VITE_GD_GAME_ID` in `.env.gamedistribution`) |
+| GameBooth | `npm run build:gamebooth` | `dist/gamebooth` | GameBooth site (postMessage to the parent page) |
 | Android / iOS | `npm run build:mobile` | `android/`, `ios/` | AdMob (test IDs in `.env.mobile`) |
 
 Zip the contents of a `dist/<target>` folder (not the folder itself) to upload to a portal.

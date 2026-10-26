@@ -10,6 +10,7 @@ export async function createPlatform(hooks: AdHooks): Promise<Platform> {
   if (p === 'poki') return new (await import('./poki')).PokiPlatform(hooks);
   if (p === 'crazygames') return new (await import('./crazygames')).CrazyGamesPlatform(hooks);
   if (p === 'gamedistribution') return new (await import('./gamedistribution')).GameDistributionPlatform(hooks);
+  if (p === 'gamebooth') return new (await import('./gamebooth')).GameBoothPlatform(hooks);
   if (p === 'mobile') return new (await import('./mobile')).MobilePlatform(hooks);
   return new (await import('./local')).LocalPlatform(hooks);
 }
