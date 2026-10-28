@@ -1,7 +1,7 @@
 import type { AdHooks, Platform } from './types';
 
 /**
- * GameBooth (gamebooth.com). The site runs the game in a sandboxed iframe and shows the ads itself; the game
+ * GameBooth (gamebooth.online). The site runs the game in a sandboxed iframe and shows the ads itself; the game
  * only sends requests to the parent page with postMessage, so there is no SDK script to load.
  * Protocol (v1), mirrored in gamebooth-web's `public/sdk/gamebooth-sdk.js`:
  *   game -> site: { source: 'gamebooth-game', v: 1, type, id? }   type: loadingFinished | gameplayStart |
