@@ -1,0 +1,10 @@
+// Cloudflare hosting for the Poki review build (static files only, no Worker code).
+// Workers Builds: build command `npm run build:poki`, deploy command `npx wrangler deploy`.
+// See docs/CLOUDFLARE.md.
+{
+  "name": "doodle-river",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist/poki"
+  }
+}
